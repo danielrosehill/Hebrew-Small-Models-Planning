@@ -87,16 +87,33 @@ Code-switching breaks that assumption: a single turn containing a Hebrew word ne
 Expect to need padding between sub-clips so the joins do not read as audible gaps.
 Tuning that is a listen-and-adjust job, not something to design up front.
 
-## Open questions
+## Open questions — answered 2026-09-22
 
-1. Does a Hebrew-in-Latin-script classifier already exist? (Initial search: no.)
-2. Is there an open-weight Latin → Hebrew transliteration model?
-3. Is chaining three small models per script a sound design, or over-decomposition?
-   Daniel has not experimented with small language models and flags this as unknown.
-4. Does a Latin-transliteration Hebrew lexicon exist, or is synthetic data the route?
-5. What is the exact Hugging Face ID of the Whisper code-switching fine-tune dataset?
-6. Is the whole chain worth the effort relative to the gain? Explicitly acknowledged as
-   possibly not — the classifier alone is judged worth it either way.
+The note's six open questions, resolved by the survey. `docs/spec.md` supersedes the
+architecture sketch above wherever the two differ.
+
+| # | Question | Answer |
+| --- | --- | --- |
+| 1 | Does a Hebrew-in-Latin-script classifier already exist? | **No.** No `heb_Latn` label in GlotLID v3, `lid.176` or `lid218e`; no token-level code-switching model covers Hebrew; no Hebrew-English code-switching corpus exists at all. Build it. `docs/prior-art.md` |
+| 2 | Is there an open-weight Latin→Hebrew transliteration model? | **Yes, one** — TaatikNet (`malper/taatiknet`, ByT5-small, CC BY-SA 3.0, last touched 2023-06-25, 73 downloads). **Word-level only**, so multi-word terms are unsolved off the shelf. The task is called *reverse transliteration* |
+| 3 | Is chaining three small models sound? | **There are only two models.** Stage 3 is deterministic string work given stage 1 and 2 output. Decision D-2 in `docs/spec.md` |
+| 4 | Does a Latin-transliteration Hebrew lexicon exist? | **Yes** — TaatikNet's `he_transliterations.csv` (~15K pairs, Hebrew Wiktionary mid-2023), and better, kaikki.org's `roman` fields from English Wiktionary. Prefer kaikki.org: TaatikNet's is share-alike |
+| 5 | What is the Hugging Face ID of the code-switching dataset? | **`danielrosehill/English-Hebrew-Mixed-Sentences`** — 516 records, 139 terms, 31.4 min audio, MIT. Behind `danielrosehill/Whisper-Hebrish`. Its README is stale and one label per record under-labels ~24% of the corpus. `docs/reference/training-data.md` |
+| 6 | Is the chain worth the effort? | **Undecided by design.** A no-model respelling baseline now runs first (phase 1) to produce the number the chain has to beat. `docs/spec.md` §5 |
+
+Two things the note assumed that turned out to be wrong:
+
+- **Chatterbox has no inline language tags.** `language_id` is a per-call parameter,
+  so the "prepend and suffix a Hebrew marker" design cannot be implemented as
+  described — segmentation is forced. Hebrew *is* supported, but only by
+  `ChatterboxMultilingualTTS`, which the pipeline does not use.
+- **The per-turn multi-clip concern is already solved.** A 250-character chunker and
+  an ffmpeg concat are in production today. The change is to make split points
+  language-driven as well as length-driven.
+
+New questions that replaced these are in `docs/spec.md` §7. The one to run first is
+Q-1: does Chatterbox's `he` voice handle unvocalised Hebrew script acceptably? It is
+a single call and a bad answer collapses the project to the lexicon alone.
 
 ## Scope decision
 

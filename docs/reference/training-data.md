@@ -35,37 +35,47 @@ Record schema:
  "hebrew_word": "teudat zehut", "category": "documents"}
 ```
 
-### Two things to know before using it
+### Three things to know before using it
 
 **The README is stale.** It documents `metadata.json`, `hebrew_words_list.csv` and
 MP3 audio. None of those exist — the repo has three JSONL splits and WAV audio.
 Fetching the paths the README names returns `Entry not found`. Fix the README while
 you are in there.
 
-**Every label is a verbatim substring of its sentence — 0 exceptions out of 474.**
-This is the good news and it matters: token-level span labels can be derived
-mechanically by string-matching `hebrew_word` against `text`. No manual span
-annotation is needed for the labels that exist.
+**The labels were produced by substring search, and 114 of 474 are wrong.**
+Corrected 2026-09-22 — an earlier version of this document said every label is a
+verbatim substring of its sentence with zero exceptions, and concluded that spans
+derive mechanically. The substring test passes, but it is the wrong test: passing it
+is precisely what a substring-generated label does. Under **word-boundary** matching:
 
-### The under-labelling problem — the one real defect
+| | Count | Of 474 labelled |
+| --- | --- | --- |
+| Label aligns with a real word | 360 | 76% |
+| **Label matches only inside another word** | **114** | **24%** |
 
-The schema allows exactly **one** `hebrew_word` per record, but the sentences
-contain more than one. Measured by matching the 139-term lexicon back over the
-corpus:
+`hi` was labelled from *t**hi**nk*; `har` from *P**har**m*; `ma` from *__ma__shav*;
+`gan` from *maz**gan***; `ach` from *m**ach**som*; `chool` from *s**chool***. In every
+one of those 114 records the real Hebrew term — *dud*, *mashkanta*, *mirsham*,
+*tlush*, *maskoret*, *hashmal*, *chufshat leida* — **is not labelled at all**.
 
-- **81 records contain a lexicon term that is not in their own label** — 84
-  unlabelled spans.
-- All **42** null-label records do contain Hebrew; they are simply unannotated.
-  Their terms (`10 Bis`, `dud`, `motzash`, `Zol Stock`) are absent from the lexicon
-  entirely — including two brand names, which is a category the lexicon does not model.
+The contamination reaches the term list too: 12 of the 139 distinct terms
+(`ach ani atem ein har hi ken latke lo ma mi supermarket`) never occur as whole words
+anywhere in the corpus. They exist only as bad labels. A further 17 are ordinary
+English words (`at`, `hi`, `lo`, `ken`, `baby`, `chicken soup`, `supermarket` …), so
+matching them fires on genuine English.
 
-Naively converting `hebrew_word` to BIO tags therefore teaches the model that ~126
-of 516 records (**24%**) have Hebrew words that are *not* Hebrew. That is the single
-biggest quality risk in stage 1.
+So the corpus needs real annotation, not a mechanical conversion. That work is under
+way in
+[**Hebrew-Latin-Token-Classifier**](https://github.com/danielrosehill/Hebrew-Latin-Token-Classifier).
 
-**Mitigation:** lexicon-match the whole corpus first, then review the diff. The
-script that produces these numbers is `scripts/analyse_mixed_sentences.py` — run it
-before and after any relabelling.
+**The under-labelling is separate and additional.** The schema allows exactly one
+`hebrew_word` per record, but sentences contain more. Matching the 117 non-quarantined
+terms back over the corpus finds 86 further candidate spans that no label covers, and
+all **42** null-label records do contain Hebrew — their terms (*10 Bis*, *dud*,
+*motzash*, *Zol Stock*) are absent from the lexicon entirely, including two brand
+names, a category the lexicon does not model.
+
+**Net:** of 516 records, 360 carry a usable label. The other 156 need a human.
 
 ## B. The My Weird Prompts transcript corpus — the in-domain corpus
 

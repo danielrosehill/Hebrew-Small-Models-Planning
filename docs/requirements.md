@@ -64,7 +64,7 @@ words the English corpus knows (*Shabbat*, *kosher*) and wrong for words it does
 | ID | Requirement | Status |
 | --- | --- | --- |
 | DR-1 | Training data SHOULD be derived from `danielrosehill/English-Hebrew-Mixed-Sentences` (516 records, 139 terms, MIT) before any new data is created. | agreed |
-| DR-2 | That dataset's under-labelling MUST be repaired before use: one label per record leaves 84 spans unlabelled across 81 records, and all 42 null-label records do contain Hebrew. ~24% of the corpus would otherwise train false negatives. | derived |
+| DR-2 | That dataset MUST be re-annotated before use, not mechanically converted. Its labels were produced by substring search: 114 of 474 match only inside an unrelated English word, and in those records the real Hebrew term is unlabelled. A further 86 candidate spans and all 42 null-label records also need a decision. | derived |
 | DR-3 | The MWP transcript corpus (4,295 episodes, 18.5M words) SHOULD be used as the in-domain evaluation set and as the source of realistic negatives. | agreed |
 | DR-4 | Colloquial-register positives MUST come from somewhere else — synthetic generation or a lexicon. Measured MWP counts: *makolet* 1, *balagan* 1, *beseder* 0, *kol hakavod* 0. | derived |
 | DR-5 | Synthetic data, if generated, SHOULD be LLM-annotated and human-reviewed. ~1,000 annotations reviewed in a basic GUI is considered tractable. | agreed |

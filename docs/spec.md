@@ -185,10 +185,12 @@ possible outcome and it should be checked before anything is trained.
 
 ### Phase 2 — the detector
 
-1. Repair the under-labelling in `English-Hebrew-Mixed-Sentences` (DR-2): 81 records
-   carry a lexicon term outside their own label, and all 42 null-label records do
-   contain Hebrew. ~24% of the corpus would otherwise train false negatives. Run
-   `scripts/analyse_mixed_sentences.py` before and after.
+1. Annotate `English-Hebrew-Mixed-Sentences` properly (DR-2). Its labels were
+   produced by substring search — 114 of 474 point inside an unrelated English word,
+   leaving the real Hebrew term unlabelled — and a further 86 candidate spans and 42
+   null-label records need a human. **Under way in
+   [Hebrew-Latin-Token-Classifier](https://github.com/danielrosehill/Hebrew-Latin-Token-Classifier)**;
+   242 review tasks queued.
 2. Mine in-domain examples from the MWP corpus by sampling **around lexicon hits**,
    not at random — 18.5M words that are almost all negatives (DR-3).
 3. Generate colloquial-register positives synthetically; the register is near-absent

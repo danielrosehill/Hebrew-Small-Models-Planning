@@ -36,9 +36,10 @@ to is stage 1 (the detector), and only if prior art does not already provide it.
 2. **The segmentation already exists.** A 250-character chunker and an ffmpeg concat
    are already in production. The change is to make split points language-driven as
    well as length-driven.
-3. **The training data mostly exists**, in `danielrosehill/English-Hebrew-Mixed-Sentences`
-   — but one label per record under-labels ~24% of it, and that has to be repaired
-   before the corpus is usable for token classification.
+3. **The training data exists but its labels do not survive inspection.**
+   `danielrosehill/English-Hebrew-Mixed-Sentences` was labelled by substring search:
+   114 of 474 labels point inside an unrelated English word, and in those records the
+   real Hebrew term is unlabelled. It needs annotating, not converting.
 
 ## Layout
 
@@ -50,6 +51,14 @@ to is stage 1 (the detector), and only if prior art does not already provide it.
 | `audio/` | The source voice note this project came from |
 | `transcripts/` | Verbatim transcripts of `audio/` |
 | `scripts/` | Analysis scripts worth re-running |
+
+## Implementation repos
+
+This repo is planning only. Work that gets built lives in its own repository:
+
+| Repo | Stage | Status |
+| --- | --- | --- |
+| [**Hebrew-Latin-Token-Classifier**](https://github.com/danielrosehill/Hebrew-Latin-Token-Classifier) | 1 — detection | Corpus preparation; 242-task review queue open |
 
 ## Related
 

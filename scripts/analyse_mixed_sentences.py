@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Analyse danielrosehill/English-Hebrew-Mixed-Sentences as classifier training data.
 
-Downloads the three JSONL splits from Hugging Face and reports label coverage,
-span alignability and the under-labelling problem described in
-docs/reference/training-data.md.
+Downloads the three JSONL splits from Hugging Face and reports label coverage and
+the two defects described in docs/reference/training-data.md: labels that match
+only inside another word, and records carrying Hebrew the label does not cover.
+
+Note the two alignment tests are reported separately and deliberately. A label
+that is a substring of its sentence proves nothing -- that is what a
+substring-generated label looks like. The word-boundary figure is the real one.
 
 Usage:  python3 scripts/analyse_mixed_sentences.py
 Needs:  network access; no HF token (the dataset is public).
@@ -54,8 +58,13 @@ def main():
     print(f"  seen once only            {sum(1 for k, v in counts.items() if v == 1)}")
     print(f"categories                  {len({r['category'] for r in records})}")
     print(f"audio minutes               {sum(r['duration_seconds'] for r in records) / 60:.1f}")
-    non_verbatim = [r for r in labelled if r["hebrew_word"].lower() not in r["text"].lower()]
-    print(f"labels not verbatim in text {len(non_verbatim)}")
+    substring_fail = [r for r in labelled
+                      if r["hebrew_word"].lower() not in r["text"].lower()]
+    boundary_fail = [r for r in labelled
+                     if not re.search(r"(?<!\w)" + re.escape(r["hebrew_word"]) + r"(?!\w)",
+                                      r["text"], re.I)]
+    print(f"labels failing substring test  {len(substring_fail)}  (meaningless on its own)")
+    print(f"labels failing word-boundary   {len(boundary_fail)}  <-- the real figure")
     print(f"under-labelled records      {records_under_labelled} "
           f"({unlabelled_spans} unlabelled spans)")
 

@@ -221,6 +221,30 @@ Worth one follow-up check.
    DR-7 prefers MIT. Building the lexicon from kaikki.org instead keeps the options
    open.
 
+## Addendum 2026-10-15
+
+Two items this survey missed. Both were found by web search; they are INFERRED from
+search snippets, and their pages were not read in full.
+
+- **The opposite direction has prior work.** Goldberg & Elhadad, *Identification of
+  transliterated foreign words in Hebrew script* (2008, BGU/BIU) detects foreign words
+  and names written in **Hebrew letters**. It trains on noisy over-generated data
+  rather than annotation and reports about 80/82 precision/recall on 4,044 words. It
+  is a paper only; no released model was found. It is the mirror image of the
+  Hebrew-Latin classifier, and it does not change the "nothing does `heb_Latn`"
+  conclusion.
+  <https://cris.bgu.ac.il/en/publications/identification-of-transliterated-foreign-words-in-hebrew-script/>
+- **[ivrit.ai](https://huggingface.co/ivrit-ai)**, the Hebrew speech non-profit. It
+  publishes a ~3,300 h Hebrew speech corpus (arXiv 2307.08720), Whisper fine-tunes, a
+  Hebrew ASR leaderboard and a Hebrew TTS Arena. All of it is Hebrew-script speech.
+  None of it handles English with embedded Hebrew, and no Hebrew-English
+  code-switching speech work was found anywhere in a 2026-10-15 search.
+
+The classifier itself shipped on 2026-10-15:
+[`danielrosehill/hebrew-latin-token-classifier`](https://huggingface.co/danielrosehill/hebrew-latin-token-classifier),
+with term-disjoint test span F1 0.941. That is well above the 0.638 EnTaCs baseline
+this document told readers to expect.
+
 ## Sources
 
 [TaatikNet GitHub](https://github.com/morrisalp/taatiknet) ·
